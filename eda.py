@@ -1,14 +1,12 @@
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
-import seaborn as sns
-from ydata_profiling import ProfileReport
 from statsmodels.tsa.stattools import adfuller
 from statsmodels.graphics.tsaplots import plot_acf, plot_pacf
 from statsmodels.tsa.seasonal import seasonal_decompose
 
 # load dataset
-df = pd.read_csv("retail_store_inventory.csv")
+df = pd.read_csv('data/retail_store_inventory.csv')
 
 # dropping demand forecast column
 df = df.drop(columns=['Demand Forecast'])
@@ -44,7 +42,7 @@ summary_table = pd.DataFrame({
 toys = df[df['Category'] == 'Toys'].groupby('Date')['Units Sold'].sum()
 toys = toys.sort_index()
 
-# time series plot jan 2002 - jan 2024
+# time series plot jan 2022 - jan 2024
 
 plt.figure(figsize=(12,4))
 plt.plot(toys, color='steelblue')
@@ -52,7 +50,7 @@ plt.title('Daily Units Sold - Toys Category (All Stores Combined)', fontsize=14)
 plt.xlabel('Date')
 plt.ylabel('Units Sold')
 plt.tight_layout()
-plt.savefig('ts_plot.png', dpi=150)
+plt.savefig('figures/ts_plot.png', dpi=150)
 plt.show()
 
 # moving average and SD
@@ -69,7 +67,7 @@ plt.xlabel('Date')
 plt.ylabel('Units Sold')
 plt.legend()
 plt.tight_layout()
-plt.savefig('rolling.png', dpi=150)
+plt.savefig('figures/rolling.png', dpi=150)
 plt.show()
 
 
@@ -89,7 +87,7 @@ decomp = seasonal_decompose(toys, model='additive', period=7)
 fig = decomp.plot()
 fig.set_size_inches(12, 8)
 plt.tight_layout()
-plt.savefig('decomposition.png', dpi=150)
+plt.savefig('figures/decomposition.png', dpi=150)
 plt.show()
 
 # ACF AND PACF PLOTS
@@ -98,7 +96,7 @@ fig, axes = plt.subplots(1, 2, figsize=(12, 4))
 plot_acf(toys, lags=40, ax=axes[0])
 plot_pacf(toys, lags=40, ax=axes[1])
 plt.tight_layout()
-plt.savefig('acf_pacf.png', dpi=150)
+plt.savefig('figures/acf_pacf.png', dpi=150)
 plt.show()
 
 # monthly average bar chart
@@ -110,10 +108,9 @@ toys_monthly.plot(kind='bar', figsize=(12,4),
 plt.xlabel('Month')
 plt.ylabel('Average Units Sold')
 plt.tight_layout()
-plt.savefig('monthly_avg.png', dpi=150)
+plt.savefig('figures/monthly_avg.png', dpi=150)
 plt.show()
 
-# avg Units Sold on holidays vs non-holiday 
-df = pd.read_csv('retail_store_inventory.csv', parse_dates=['Date'])
+# avg Units Sold on holidays vs non-holiday (re-uses df loaded above)
 toys_df = df[df['Category'] == 'Toys']
 print(toys_df.groupby('Holiday/Promotion')['Units Sold'].mean().round(2))

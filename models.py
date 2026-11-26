@@ -10,7 +10,7 @@ from scipy import stats
 
 
 # Load and prepare data
-df = pd.read_csv('retail_store_inventory.csv', parse_dates=['Date'])
+df = pd.read_csv('data/retail_store_inventory.csv', parse_dates=['Date'])
 df = df.drop(columns=['Demand Forecast'])
 
 # Create Toys series
@@ -44,8 +44,8 @@ for p, q in itertools.product(p_values, q_values):
             'BIC': fitted.bic
         })
         print(f'ARIMA({p},{d},{q}) — AIC: {fitted.aic:.2f}, BIC: {fitted.bic:.2f}')
-    except:
-        print(f'ARIMA({p},{d},{q}) — Failed to converge')
+    except Exception as e:
+        print(f'ARIMA({p},{d},{q}) — Failed to fit: {e}')
 
 # find best model
 results_df = pd.DataFrame(results)
@@ -84,7 +84,7 @@ plt.xlabel('Date')
 plt.ylabel('Units Sold')
 plt.legend()
 plt.tight_layout()
-plt.savefig('arima_forecast.png', dpi=150)
+plt.savefig('figures/arima_forecast.png', dpi=150)
 plt.show()
 
 # calculating RMSE, MAE, MAPE for ARIMA (0,0,0)
@@ -134,8 +134,8 @@ for p, q, P, Q in itertools.product(p_values, q_values, P_values, Q_values):
             'BIC': fitted.bic
         })
         print(f'SARIMA({p},{d},{q})({P},{D},{Q},7) — AIC: {fitted.aic:.2f}')
-    except:
-        pass
+    except Exception as e:
+        print(f'SARIMA({p},{d},{q})({P},{D},{Q},7) — Failed to fit: {e}')
 
 # Find best SARIMA model
 sarima_df = pd.DataFrame(sarima_results)
@@ -143,13 +143,12 @@ best_sarima = sarima_df.loc[sarima_df['AIC'].idxmin()]
 print(f'\nBest SARIMA model: SARIMA({int(best_sarima.p)},{int(best_sarima.d)},{int(best_sarima.q)})({int(best_sarima.P)},{int(best_sarima.D)},{int(best_sarima.Q)},7)')
 print(f'AIC: {best_sarima.AIC:.2f}, BIC: {best_sarima.BIC:.2f}')
 
-# Fit best SARIMA model
-best_p = int(best_sarima['p'])
-best_q = int(best_sarima['q'])
-best_P = int(best_sarima['P'])
-best_Q = int(best_sarima['Q'])
-
-# Manually fit a sensible SARIMA model
+# NOTE: the lowest-AIC SARIMA above is NOT used.
+# One configuration returned an AIC of ~12, while every other model scored
+# ~9,300-9,500, and its forecasts were close to zero. That is a numerical
+# fitting failure, not a better model, so it is rejected.
+# SARIMA(1,0,1)(1,0,1,7) is chosen instead, based on the ACF/PACF evidence
+# and the weekly (m = 7) cycle found in the seasonal decomposition.
 sarima_model = SARIMAX(train,
                        order=(1, 0, 1),
                        seasonal_order=(1, 0, 1, 7))
@@ -180,7 +179,7 @@ plt.xlabel('Date')
 plt.ylabel('Units Sold')
 plt.legend()
 plt.tight_layout()
-plt.savefig('sarima_forecast.png', dpi=150)
+plt.savefig('figures/sarima_forecast.png', dpi=150)
 plt.show()
 
 # Evaluation metrics
@@ -208,7 +207,8 @@ ci_upper = forecast_ci_000.iloc[:, 1].values
 # avg daily forecast demand
 avg_daily_demand = forecast_values.mean()
 
-# forecast error (sd of residuals on test set)
+# forecast error: standard deviation of the forecast errors on the 147-day test set
+# (an alternative would be the in-sample residuals, which avoids using test data)
 forecast_errors = test.values - forecast_values
 forecast_std = np.std(forecast_errors)
 
