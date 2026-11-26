@@ -57,7 +57,7 @@ Retailers face two costly errors: **stockouts** (lost sales, unhappy customers) 
 
 **2. Information criteria must be sanity-checked.** One SARIMA configuration returned an AIC of **12.00**. Every other model scored around 9,300–9,500. Its forecasts were close to zero, which shows a numerical fitting failure, not a better model. I rejected it and selected SARIMA(1,0,1)(1,0,1,7) using the ACF/PACF evidence.
 
-**3. A single holdout gave the wrong answer.** On the 147-day holdout, SARIMA looked slightly better (21.08% vs 21.61% MAPE). Across 10 rolling windows, SARIMA failed to converge in **Window 8**. It forecast close to zero against actual demand of about 2,700 units, giving 100% MAPE. That one failure pushed its average to 27.55%, versus 20.64% for ARIMA. Without Window 8, SARIMA averaged 17.93% versus 20.71%. So SARIMA can be more accurate, but it isn't safe to deploy without convergence checks.
+**3. A single holdout gave the wrong answer.** On the 147-day holdout, SARIMA looked slightly better (21.08% vs 21.61% MAPE). Across 10 rolling windows, SARIMA failed to converge in **Window 8**. It forecast close to zero against actual demand of about 2,700 units, giving 100% MAPE. That one failure pushed its average to 27.55%, versus 20.64% for ARIMA. Without Window 8, the two models are almost identical (SARIMA 19.50% vs ARIMA 19.80%). So SARIMA's extra complexity buys a 0.3-point gain at best, and it isn't safe to deploy without convergence checks.
 
 **4. The dataset has synthetic limits.** Average Toys demand per row was 135.07 units on holiday/promotion days and 136.77 on other days. Real retail data would normally show a clear promotion effect. This limits how much accuracy any univariate model can achieve on this data.
 
