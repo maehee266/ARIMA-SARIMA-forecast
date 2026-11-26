@@ -115,4 +115,4 @@ Full reference list in [`report/FYP_Report.pdf`](report/FYP_Report.pdf).
 
 ---
 
-**Author:** Mary Heng · [GitHub](https://github.com/maehee266) · marylj026@gmail.com
+**Author:** Mary Heng · [LinkedIn](https://www.linkedin.com/in/mary-heng-ab119b414/) · [GitHub](https://github.com/maehee266) · marylj026@gmail.com
